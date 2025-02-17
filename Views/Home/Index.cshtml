@@ -1,0 +1,76 @@
+﻿@model HomeViewModel;
+@using System.Globalization
+@using MinhasFinancas.ViewModels
+
+<div class="container text-center py-4">
+    <div class="container text-center py-4">
+        <div class="d-flex justify-content-center align-items-center gap-3">
+            <!-- Seta para o mês anterior -->
+            <a href="@Url.Action("Index", new { mes = Model.MesAnterior })" class="btn btn-outline-secondary">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+
+            <h2 class="fw-bold mb-3">@Model.MesAtual</h2>
+
+            <!-- Seta para o mês seguinte -->
+            <a href="@Url.Action("Index", new { mes = Model.MesProximo })" class="btn btn-outline-secondary">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center gap-5 align-items-center">
+        <div class="text-center">
+            <i class="bi bi-check-circle-fill text-success fs-4"></i>
+            <p class="mb-1 text-light">Inicial</p>
+            <span class="badge bg-dark px-3 py-2 fs-6">
+                @Model.SaldoInicial.ToString("C", new CultureInfo("pt-BR"))
+            </span>
+        </div>
+
+        <div class="text-center">
+            <i class="bi bi-circle text-secondary fs-4"></i>
+            <p class="mb-1 text-light">Saldo</p>
+            <span class="fw-bold @(Model.SaldoAtual >= 0 ? "text-success" : "text-danger") fs-4">
+                @Model.SaldoAtual.ToString("C", new CultureInfo("pt-BR"))
+            </span>
+        </div>
+
+        <div class="text-center">
+            <i class="bi bi-clock text-warning fs-4"></i>
+            <p class="mb-1 text-light">Previsto</p>
+            <span class="badge bg-dark px-3 py-2 fs-6">
+                @Model.SaldoPrevisto.ToString("C", new CultureInfo("pt-BR"))
+            </span>
+        </div>
+    </div>
+
+    <!-- Tabela das últimas 10 transações -->
+    <div class="mt-4">
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transacao in Model.UltimasTransacoes)
+                {
+                    <tr>
+                        <td>@transacao.Descricao</td>
+                        <td>@transacao.Tipo</td>
+                        <td>@transacao.DataEfetivacao.ToString("dd/MM/yyyy")</td>
+                        <td class="@(transacao.Tipo == MinhasFinancas.Enums.TransacaoTipo.Receita ? "text-success" : "text-danger")">
+                            @transacao.Valor.ToString("C", new CultureInfo("pt-BR"))
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">

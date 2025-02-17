@@ -1,0 +1,38 @@
+﻿@model MinhasFinancas.Models.ContaBancariaModel
+
+@{
+    ViewData["Title"] = "Alterar - Conta bancária";
+}
+
+<h1>Alterar</h1>
+
+<h4>Conta bancária</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="UsuarioId" class="form-control" value="@ViewBag.UsuarioId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Descricao" class="control-label">Descrição</label>
+                <input asp-for="Descricao" class="form-control" />
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumeroConta" class="control-label">Numero da conta</label>
+                <input asp-for="NumeroConta" class="form-control" />
+                <span asp-validation-for="NumeroConta" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <input type="submit" value="Atualizar" class="btn btn-primary" />
+                 <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

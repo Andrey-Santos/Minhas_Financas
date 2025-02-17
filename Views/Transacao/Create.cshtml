@@ -1,0 +1,58 @@
+﻿@model MinhasFinancas.Models.TransacaoModel
+
+@{
+    ViewData["Title"] = "Criar - Transação";
+}
+
+<h1>Create</h1>
+
+<h4>Transação</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Descricao" class="control-label"></label>
+                <input asp-for="Descricao" class="form-control" />
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Tipo" class="control-label"></label>
+                <select asp-for="Tipo" class="form-control" asp-items="ViewBag.Tipo"></select>
+                <span asp-validation-for="Tipo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" class="form-control" asp-items="ViewBag.Status"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Valor" class="control-label"></label>
+                <input asp-for="Valor" type="number" class="form-control" />
+                <span asp-validation-for="Valor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DataEfetivacao" class="control-label"></label>
+                <input type="date" asp-for="DataEfetivacao" class="form-control" />
+                <span asp-validation-for="DataEfetivacao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContaBancariaId" class="control-label"></label>
+                <select asp-for="ContaBancariaId" class="form-control" asp-items="ViewBag.ContaBancaria">
+                    <option value="">Selecione uma conta</option>
+                </select>
+                <span asp-validation-for="ContaBancariaId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2">
+                <input type="submit" value="Criar" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
