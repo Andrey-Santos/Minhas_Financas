@@ -26,8 +26,9 @@ namespace MinhasFinancas.Controllers
         public async Task<IActionResult> Index()
         {
             var transacoes = await _context.TransacaoModel
-                                    .Include(t => t.ContaBancaria) 
-                                    .ToListAsync();
+                                           .Include(t => t.ContaBancaria)
+                                           .ToListAsync();
+
             return View(transacoes);
         }
 
@@ -47,17 +48,31 @@ namespace MinhasFinancas.Controllers
         }
 
         // GET: Transacao/Create
-        public IActionResult Create()
+        public IActionResult Create(TransacaoTipo? tipo)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var ultimaTransacao = _context.TransacaoModel
+                                          .Join(_context.ContaBancaria,
+                                                t => t.ContaBancariaId,
+                                                c => c.Id,
+                                                (t, c) => new { Transacao = t, ContaBancaria = c })
+                                          .Where(x => x.ContaBancaria.UsuarioId == userId)
+                                          .OrderByDescending(x => x.Transacao.DataEfetivacao)
+                                          .Select(x => x.Transacao)
+                                          .FirstOrDefault();
+
+            var contaBancariaId = ultimaTransacao?.ContaBancariaId;
+
             var contas = _context.ContaBancaria
                                  .Where(c => c.UsuarioId == userId)
                                  .Select(c => new { c.Id, c.Descricao })
                                  .ToList();
 
-            ViewBag.ContaBancaria = new SelectList(contas, "Id", "Descricao");
-            ViewBag.Tipo = new SelectList(Enum.GetValues<TransacaoTipo>(), TransacaoTipo.Despesa);
+            ViewBag.ContaBancaria = new SelectList(contas, "Id", "Descricao", contaBancariaId);
+            ViewBag.Tipo = new SelectList(Enum.GetValues<TransacaoTipo>(), tipo ?? TransacaoTipo.Despesa);
             ViewBag.Status = new SelectList(Enum.GetValues<TransacaoStatus>(), TransacaoStatus.Pendente);
+
             return View();
         }
 
