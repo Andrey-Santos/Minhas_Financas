@@ -23,14 +23,34 @@ namespace MinhasFinancas.Controllers
         }
 
         // GET: Transacao
-        public async Task<IActionResult> Index()
+        public IActionResult Index(string mes, string descricao)
         {
-            var transacoes = await _context.TransacaoModel
-                                           .Include(t => t.ContaBancaria)
-                                           .ToListAsync();
+            var transacoes = _context.TransacaoModel.Include(t => t.ContaBancaria).AsQueryable();
 
-            return View(transacoes);
+            // Filtro por mês
+            if (!string.IsNullOrEmpty(mes))
+            {
+                DateTime primeiroDiaMes;
+                if (DateTime.TryParse(mes + "-01", out primeiroDiaMes))
+                {
+                    DateTime ultimoDiaMes = primeiroDiaMes.AddMonths(1).AddDays(-1);
+                    transacoes = transacoes.Where(t => t.DataEfetivacao >= primeiroDiaMes && t.DataEfetivacao <= ultimoDiaMes);
+                }
+            }
+
+            // Filtro por descrição
+            if (!string.IsNullOrEmpty(descricao))
+            {
+                transacoes = transacoes.Where(t => t.Descricao.Contains(descricao));
+            }
+
+            // Passa os filtros selecionados para a View
+            ViewData["MesSelecionado"] = mes;
+            ViewData["DescricaoSelecionada"] = descricao;
+
+            return View(transacoes.ToList());
         }
+
 
         // GET: Transacao/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -49,6 +69,40 @@ namespace MinhasFinancas.Controllers
 
         // GET: Transacao/Create
         public IActionResult Create(TransacaoTipo? tipo)
+        {
+            TransacaoModel? model = PrepararViewCreate(tipo: tipo);
+            return View(model);
+        }
+
+        // GET: Transacao/Duplicar/{id}
+        public IActionResult Duplicar(int id)
+        {
+            var transacao = _context.TransacaoModel.Find(id);
+            if (transacao == null)
+            {
+                return NotFound();
+            }
+
+            var novaTransacao = new TransacaoModel
+            {
+                Descricao = transacao.Descricao,
+                Tipo = transacao.Tipo,
+                Status = transacao.Status,
+                Valor = transacao.Valor,
+                DataEfetivacao = transacao.DataEfetivacao,
+                ContaBancariaId = transacao.ContaBancariaId,
+                DataCriacao = DateTime.Now,
+                DataAlteracao = DateTime.Now,
+                DataProximaTransacao = transacao.DataProximaTransacao,
+                SaldoAtual = transacao.SaldoAtual
+            };
+
+            var model = PrepararViewCreate(transacao: novaTransacao);
+            return View("Create", model);
+        }
+
+
+        private TransacaoModel? PrepararViewCreate(TransacaoModel? transacao = null, TransacaoTipo? tipo = null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -69,11 +123,11 @@ namespace MinhasFinancas.Controllers
                                  .Select(c => new { c.Id, c.Descricao })
                                  .ToList();
 
-            ViewBag.ContaBancaria = new SelectList(contas, "Id", "Descricao", contaBancariaId);
-            ViewBag.Tipo = new SelectList(Enum.GetValues<TransacaoTipo>(), tipo ?? TransacaoTipo.Despesa);
-            ViewBag.Status = new SelectList(Enum.GetValues<TransacaoStatus>(), TransacaoStatus.Pendente);
+            ViewBag.ContaBancaria = new SelectList(contas, "Id", "Descricao", transacao?.ContaBancariaId ?? contaBancariaId);
+            ViewBag.Tipo = new SelectList(Enum.GetValues<TransacaoTipo>(), transacao?.Tipo ?? tipo ?? TransacaoTipo.Despesa);
+            ViewBag.Status = new SelectList(Enum.GetValues<TransacaoStatus>(), transacao?.Status ?? TransacaoStatus.Pendente);
 
-            return View();
+            return transacao;
         }
 
         // POST: Transacao/Create
