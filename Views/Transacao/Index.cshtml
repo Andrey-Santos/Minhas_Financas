@@ -24,9 +24,10 @@
         <!-- Botão de Filtrar -->
         <div class="col-md-2">
             <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-            <button type="button" class="btn btn-success w-100">
-                <a asp-action="Create" class="text-white text-decoration-none">Adicionar</a>
+            <button type="button" class="btn btn-success w-100" onclick="window.location.href='@Url.Action("Create")'">
+                Adicionar
             </button>
+
         </div>
     </div>
 </form>
